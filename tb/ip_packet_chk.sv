@@ -23,6 +23,10 @@ class IP_packet_chk;
 		bit[31:0]	crc32;
 		bit[15:0]	seq;
 		bit[15:0]	lgth;
+		
+		int fd;
+			
+		
 
 		this.data[this.lgth]	=wr_data[31:24];
 		this.data[this.lgth+1]	=wr_data[23:16];
@@ -47,6 +51,7 @@ class IP_packet_chk;
 			
 			if (lgth != this.lgth) begin
 				$display ("Packet lgth mismatch detected! The expected lgth is:%04d but received packet lgth is:%04d", lgth, this.lgth);
+				fd = $fopen (../log/.sim_failed, "w");
 				$finish;
 			end
 			
@@ -56,12 +61,16 @@ class IP_packet_chk;
 			
 			if (seq==16'hffff) begin
 				$display ("The final packet with seq number:0xffff received and it means the simulation is completed without error");
+				fd = $fopen (../log/.sim_succeed, "w");
+				$fclose(fd);
 				$finish;
 				end
 			
 			
 			if (seq != this.seq ) begin
 				$display ("Packet sequence number mismatch detected! The expected seq is:%04d but received packet seq is:%04d", this.seq, seq);
+				fd = $fopen (../log/.sim_failed, "w");
+				$fclose(fd);
 				$finish;
 			end
 			
@@ -69,6 +78,8 @@ class IP_packet_chk;
 			crc32={this.data[this.lgth-4], this.data[this.lgth-3],this.data[this.lgth-2],this.data[this.lgth-1]};
 			if (crc32 != this.gen_CRC32() ) begin
 				$display ("Packet CRC32 mismatch detected! The expected lgth is:%04h but received packet lgth is:%04h", crc32,this.crc32);
+				fd = $fopen (../log/.sim_failed, "w");
+				$fclose(fd);
 				$finish;
 			end
 			

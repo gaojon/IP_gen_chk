@@ -13,7 +13,7 @@ class IP_packet_gen;
 	
 	
 	
-	function new (string file_name = "/home/jung/IP_gen_chk/data/config.ini");
+	function new (string file_name = "../data/config.ini");
 		int fd;
 			
 		fd = $fopen (file_name, "r");
