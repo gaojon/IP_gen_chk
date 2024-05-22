@@ -1,5 +1,7 @@
-xvlog -sv ../../tb/tb_top.sv 
-xvlog ../../dut/axis_loop.v
+
+xvlog -sv "../../tb/tb_top.sv"
+
+xvlog "../../dut/axis_loop.v"
 
 
 xelab tb_top -debug typical --log ../log/xelab.log
