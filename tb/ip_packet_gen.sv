@@ -41,14 +41,18 @@ class IP_packet_gen;
 
 		
 		if (this.random == 1'b0) begin
-			this.lgth	= this.start_lgth + this.seq;
+			
 			if (this.lgth  > this.end_lgth)
 				this.gen_completed = 1;	
+			else
+				this.lgth	= this.start_lgth + this.seq;
 				
 		end else begin
-			this.lgth	= $urandom_range(this.start_lgth, this.end_lgth);
+			
 			if (this.seq > this.packet_numb)
 				this.gen_completed = 1;
+			else
+				this.lgth	= $urandom_range(this.start_lgth, this.end_lgth);
 		end
 			
 		//repeat last packet if compelted	
@@ -129,28 +133,30 @@ class IP_packet_gen;
 	
 	function void	rd_data32(output bit [31:0] rd_data, output bit [3:0] rd_strobe, output bit rd_last);
 
-		
-		rd_data	= {this.data[this.pointer], this.data[this.pointer+1],this.data[this.pointer+2],this.data[this.pointer+3]};
-		
-		if (this.pointer + 4 < this.lgth) begin
-			this.pointer = this.pointer + 4;
-			this.strobe	 =4'b1111;
+
+
+			
+			rd_data	= {this.data[this.pointer], this.data[this.pointer+1],this.data[this.pointer+2],this.data[this.pointer+3]};
+			
+			if (this.pointer + 4 < this.lgth) begin
+				this.pointer = this.pointer + 4;
+				this.strobe	 =4'b1111;
+				end
+			else begin
+				this.last	= 1'b1;
+				case (this.lgth[1:0])
+					2'b00:	this.strobe	 =4'b1111;
+					2'b01:	this.strobe	 =4'b1000;
+					2'b10:	this.strobe	 =4'b1100;
+					2'b11:	this.strobe	 =4'b1110;
+				endcase
 			end
-		else begin
-			this.last	= 1'b1;
-			case (this.lgth[1:0])
-				2'b00:	this.strobe	 =4'b1111;
-				2'b01:	this.strobe	 =4'b1000;
-				2'b10:	this.strobe	 =4'b1100;
-				2'b11:	this.strobe	 =4'b1110;
-			endcase
-		end
-		
-		rd_strobe = this.strobe;
-		rd_last	  = this.last;
-		
-		if (this.last == 1'b1)
-			this.init_packet();
+			
+			rd_strobe = this.strobe;
+			rd_last	  = this.last;
+			
+			if (this.last == 1'b1)
+				this.init_packet();
 
 		
 	endfunction
